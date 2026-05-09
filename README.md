@@ -1,90 +1,79 @@
-# go-no-go
+# Food-Specific Go/No-Go Task
 
 ## Overview
-This project is a PsychoPy-based **Go/No-Go task** adapted from Price et al. (2016), originally designed to study **food-specific response inhibition**. In this version, participants see food images and must either press a key quickly during **Go trials** or withhold their response during **No-Go trials**.
 
-The current script appears to be modified for a possible **anorexia nervosa intervention context**, where food categories are used to define Go versus No-Go trials.
+This repository contains a PsychoPy adaptation of a Go/No-Go protocol initially based on Price et al. (2016) regarding food-specific response inhibition. This specific version has been modified for use in an anorexia nervosa intervention context.
 
-## Task Design
-Each trial includes three stages:
+The task measures a participant's ability to inhibit their response to specific food images (High Fat vs. Low Fat).
 
-1. **Fixation cross** for 500 ms  
-2. **Food image presentation** for 750 ms  
-3. **Blank screen** for 500 ms  
+## Task Protocol
 
-Participants respond using the **space bar**:
-- **Go trial**: press the space bar as quickly as possible
-- **No-Go trial**: do not press any key
+The experimental flow is structured as follows:
 
-The **Escape** key can be used to quit the experiment early.
+* **Initialization:** The researcher enters the participant's number and age via a dialog box.
+* **Instructions:** Participants are presented with an instruction screen explaining the cues.
+* **Trial Sequence:**
+1. **Fixation:** A fixation cross (`+`) appears for 500 ms.
+2. **Stimulus:** A food image appears for up to 750 ms alongside a specific visual cue.
+3. **Response:** * **Go Trial (Low Fat / `fat == 0`):** A green **"O"** is displayed. The participant must press the **SPACEBAR** as quickly as possible.
+* **No-Go Trial (High Fat / `fat == 1`):** A red **"X"** is displayed. The participant must withhold their response (do not press anything).
 
-## Stimuli
-The task uses food images listed in a CSV file. The script reads a food list and separates items into two groups based on the `fat` column:
 
-- `fat == 0`: treated as **Go** stimuli
-- `fat == 1`: treated as **No-Go** stimuli
 
-The script currently samples and combines these items to create the trial sequence.
 
-## Input Files
-The script expects:
+* **Exit:** Participants can press the **ESCAPE** key at any time during the stimulus presentation to abort the task.
 
-- A CSV file containing food stimulus information  
-  Example in the script:  
-  `HF_LF_60.csv`
+## Prerequisites & Dependencies
 
-- A folder containing food image files  
-  Example in the script:  
-  `stimuli/`
+Ensure you have Python installed along with the following libraries:
 
-The CSV file should include at least:
-- `food`: image filename
-- `fat`: trial category code
+* `psychopy`
+* `pandas`
 
-## Software Requirements
-- Python 3
-- PsychoPy
-- pandas
+You can install the required packages using pip:
 
-Possible imports used in the script:
-- `pandas`
-- `psychopy.gui`
-- `psychopy.visual`
-- `psychopy.core`
-- `psychopy.event`
-- `psychopy.hardware.keyboard`
-- `psychopy.data`
+```bash
+pip install psychopy pandas
 
-## Procedure
-When the script starts:
+```
 
-1. A dialog box asks for participant information.
-2. A PsychoPy window opens.
-3. Food stimuli are loaded from the CSV file.
-4. Trials are generated and randomized.
-5. On each trial:
-   - a fixation cross is shown
-   - a food image is displayed
-   - keyboard response is recorded
-6. Accuracy is classified as:
-   - **correct Go response**
-   - **omission error** on Go trials
-   - **correct No-Go withholding**
-   - **commission error** on No-Go trials
+## Setup & File Structure
 
-## Output
-The intended output is a participant-level CSV file:
+**Important:** This script currently relies on absolute file paths. Before running the experiment on a new machine, you must update the following paths in the script to match your local directory structure:
 
-`[participant_id]_gonogo.csv`
+1. **Stimulus List:** Update the `f_list` variable to point to your condition CSV file.
+```python
+f_list = "C:/path/to/your/HF_LF_60.csv"
 
-The saved data are intended to include:
-- trial type
-- response
-- reaction time
-- accuracy
-- error type
+```
 
-## Citation
-This task is adapted from:
 
-Price, M., Lee, M., & Higgs, S. (2016). *Food-specific response inhibition, dietary restraint and snack intake in lean and overweight/obese adults.*
+2. **Image Directory:** Update the `path` variable within the trial loop to point to your image folder.
+```python
+path = "C:/path/to/your/stimuli_folder/" + trial.food
+
+```
+
+
+
+### Required CSV Format (`HF_LF_60.csv`)
+
+The script expects a CSV file containing at least the following two columns:
+
+* `food`: The exact filename of the image (e.g., `apple.jpg`).
+* `fat`: A binary indicator where `0` represents Low Fat (Go) and `1` represents High Fat (No-Go).
+
+## Output Data
+
+Upon completion (or if the script successfully runs through the trial loop), the program will generate a CSV file named `<participant_nr>_gonogo.csv` in the current working directory.
+
+The output file logs the original stimulus data alongside the participant's performance metrics:
+
+* **`response`**: Whether the participant pressed the spacebar (`press`) or not (`no_press`).
+* **`rt`**: Reaction time in seconds (recorded as `NA` if no response was made).
+* **`trial_type`**: The condition of the trial (`go` or `nogo`).
+* **`accuracy`**: Scored as `1` (correct) or `0` (incorrect).
+* **`error_type`**:
+* `none`: Correct response.
+* `omission`: Failed to press the spacebar during a Go trial.
+* `commission`: Incorrectly pressed the spacebar during a No-Go trial.
